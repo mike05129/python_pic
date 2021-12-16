@@ -17,6 +17,7 @@ from PIL.Image import Image
 from simpleimage import SimpleImage
 
 
+
 def get_pixel_dist(pixel, red, green, blue):
     """
     Returns the color distance between pixel and mean RGB value
@@ -49,8 +50,18 @@ def get_average(pixels):
     Assumes you are returning in the order: [red, green, blue]
 
     """
-    pass
+    total_r = 0
+    total_b = 0
+    total_g = 0
+    for x in range (len(pixels)):
+        total_r += pixels[x].red
+        total_b += pixels[x].blue
+        total_g += pixels[x].green
 
+    rgb=[total_r/len(pixels),total_g/len(pixels),total_b/len(pixels)]
+
+    return rgb
+    
 
 def get_best_pixel(pixels):
     """
@@ -63,7 +74,16 @@ def get_best_pixel(pixels):
         best (Pixel): pixel closest to RGB averages
 
     """
-    pass
+    avg_rgb= get_average(pixels)
+    Best_position = 0
+    for x in range (len(pixels)): #using numpy is easier
+        if x+1 != len(pixels):
+            if get_pixel_dist(pixels[x],avg_rgb[0],avg_rgb[1],avg_rgb[2]) < get_pixel_dist(pixels[x+1],avg_rgb[0],avg_rgb[1],avg_rgb[2]):
+                Best_position = x
+            else:
+                Best_position = x+1
+        return pixels[Best_position]  
+    
 
 
 def solve(images):
@@ -81,10 +101,31 @@ def solve(images):
     result = SimpleImage.blank(width, height)
     ######## YOUR CODE STARTS HERE #########
     # Write code to populate image and create the 'ghost' effect
+    """
+    gre_im = SimpleImage.blank(20,20,'green').get_pixel(0,0)
+    red_im = SimpleImage.blank(20,20,'red').get_pixel(0,0)
+    blu_im = SimpleImage.blank(20,20,'blue').get_pixel(0,0)
+    #gre_pix = images[1].get_pixel(0,0)
+    best1 = get_best_pixel([gre_im,blu_im,blu_im])
+    #print(get_pixel_dist(gre_pix,5,255,10))
+    #print(get_average([gre_im,gre_im,gre_im,blu_im]))
 
-    gre_im = SimpleImage.blank(20,20,'green')
-    gre_pix = images[1].get_pixel(0,0)
-    print(get_pixel_dist(gre_pix,5,255,10))
+    print(best1.red,best1.green,best1.blue)
+    """
+    image_pixel=[]
+    for x in range (width):
+        for y in range (height):
+           
+            for z in images:             
+                image_pixel.append(z.get_pixel(x,y))
+            best_pixel = get_best_pixel(image_pixel)
+            image_pixel.clear()
+            result.set_pixel(x,y,best_pixel)
+            #result_pix = result.get_pixel(x,y)
+            #result_pix.red = best_pixel.red
+            #result_pix.green=best_pixel.green
+            #result_pix.blue=best_pixel.blue
+
 
     ######## YOUR CODE ENDS HERE ###########
     print("Displaying image!")
@@ -135,6 +176,7 @@ def main():
     # We just take 1 argument, the folder containing all the images.
     # The load_images() capability is provided above.
     images = load_images(args[0])
+
     solve(images)
 
 
